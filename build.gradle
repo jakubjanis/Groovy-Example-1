@@ -1,0 +1,38 @@
+plugins {
+    id 'groovy'
+    id 'java'
+    id 'application'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.codehaus.groovy:groovy-all:3.0.7'
+    testImplementation group: 'org.spockframework', name: 'spock-core', version: '2.0-M5-groovy-3.0'
+}
+
+application {
+    mainClass = 'core.MyApp'
+}
+
+class ScpTask extends DefaultTask {
+    @TaskAction
+    def scp() {
+        def ip = "192.168.0.115"
+        def sout = new StringBuilder(), serr = new StringBuilder()
+        def command = "scp '" + project.projectDir + "/build/libs/Groovy-Example-1-1.0-SNAPSHOT.jar' temp"
+        println command
+        def proc = command.execute()
+        proc.consumeProcessOutput(sout, serr)
+        proc.waitForOrKill(1000)
+        println "out> $sout\nerr> $serr"
+        println 'hello from custom task: ' + proc
+    }
+}
+
+task scp(type: ScpTask)
